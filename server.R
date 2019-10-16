@@ -45,10 +45,6 @@ server <- function(input, output, session) {
     })
     
 
-    ## Maak een bestand met maximale score per vraag op basis van geupload bestand
-    ## TODO
-    
-
     ## Maak een df met toetsanalyse gegevens op basis van de scores en geselecteerde
     ## items
     output$betrouwbaarheid <- renderTable({
@@ -68,7 +64,6 @@ server <- function(input, output, session) {
                                      'Aantal vragen' = Aantal_vragen,
                                      'Aantal studenten' = Aantal_studenten)
         
-        
         itemanalyse_rapport
     })
     
@@ -81,26 +76,12 @@ server <- function(input, output, session) {
         
         ## Maak een itemanalyse-rapport
         itemanalyse <- psych::alpha(scores)$item.stats
-        
-        library(tidyverse)
-        max_scores <- scores %>% 
-            psych::describe() %>% tibble::rownames_to_column("Items") %>% 
-            select(Items,
-                   max)
-        
+
             itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
                 left_join(max_score_vraag()) %>% 
                 mutate(p_waarde = mean/max,
                        n = round(n))
-
-                
-            # itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
-            #         left_join(max_scores) %>% 
-            #         mutate(p_waarde = mean/max,
-            #                n = round(n))
-
         
-
         ## Maak een plotje van p en rirwaarden geselecteerde vragen
         library(ggplot2)
         library(ggrepel)
@@ -120,13 +101,7 @@ server <- function(input, output, session) {
         scores <- select(scores(), input$itemnamen)
         
         itemanalyse <- psych::alpha(scores)$item.stats
-        
-        library(tidyverse)
-        max_scores <- scores %>% 
-            psych::describe() %>% tibble::rownames_to_column("Items") %>% 
-            select(Items,
-                   max)
-        
+
         itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
             left_join(max_score_vraag()) %>% 
             mutate(p_waarde = mean/max,
@@ -177,17 +152,10 @@ server <- function(input, output, session) {
             
             itemanalyse <- psych::alpha(scores)$item.stats
             
-            library(tidyverse)
-            max_scores <- scores %>% 
-                psych::describe() %>% tibble::rownames_to_column("Items") %>% 
-                select(Items,
-                       max)
-            
             itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
-                left_join(max_scores) %>% 
+                left_join(max_score_vraag()) %>% 
                 mutate(p_waarde = mean/max,
-                       n = as.character(n),
-                       max = as.character(max))
+                       n = as.character(n))
             
             ## Selecreer gewenste kolommen en hernoem ze waar nodig
             itemanalyse <- select(itemanalyse,

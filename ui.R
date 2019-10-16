@@ -21,9 +21,6 @@ ui <- fluidPage(
             selectInput("itemnamen", "Selecteer vragen voor analyse",
                         choices = NULL, multiple = TRUE),
             
-            ## Download de itemanalyse
-            downloadButton(outputId = "download_data", label = "Download item analyse"),
-            
             ## Download de maximale score per vraag (van de geselecteerde vragen)
             downloadButton(outputId = "download_max_score", 
                            label = "Download maximale score selectie"),
@@ -35,7 +32,10 @@ ui <- fluidPage(
                           "text/csv",
                           "text/comma-separated-values,text/plain",
                           ".csv")
-            )
+            ),
+            
+            ## Download de itemanalyse
+            downloadButton(outputId = "download_data", label = "Download item analyse")
 
         ),
         
