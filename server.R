@@ -1,6 +1,7 @@
 
 ## Laad benodigde packages
 library(shiny)
+library(tidyverse)
 
 # Define server logic 
 server <- function(input, output, session) {
