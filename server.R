@@ -12,7 +12,23 @@ server <- function(input, output, session) {
     if (is.null(inFile))
         return(NULL)
     
-    scores <- data.table::fread(inFile$datapath)})
+    scores <- data.table::fread(inFile$datapath)
+    
+    scores
+    
+    })
+    
+    ## Maak een reactive maximale score bestand op basis van de upload
+    max_score_vraag <- reactive({inFile_max <- input$max_score_upload
+    
+    if (is.null(inFile_max))
+        return(NULL)
+    
+    max_score_vraag <- data.table::fread(inFile_max$datapath)
+    
+    max_score_vraag
+    
+    })
     
     
     ## vraagnamen van geuploade vragen tonen als bestand is geupload
@@ -32,6 +48,7 @@ server <- function(input, output, session) {
     ## Maak een bestand met maximale score per vraag op basis van geupload bestand
     ## TODO
     
+
     ## Maak een df met toetsanalyse gegevens op basis van de scores en geselecteerde
     ## items
     output$betrouwbaarheid <- renderTable({
@@ -71,10 +88,18 @@ server <- function(input, output, session) {
             select(Items,
                    max)
         
-        itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
-            left_join(max_scores) %>% 
-            mutate(p_waarde = mean/max,
-                   n = round(n))
+            itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
+                left_join(max_score_vraag()) %>% 
+                mutate(p_waarde = mean/max,
+                       n = round(n))
+
+                
+            # itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
+            #         left_join(max_scores) %>% 
+            #         mutate(p_waarde = mean/max,
+            #                n = round(n))
+
+        
 
         ## Maak een plotje van p en rirwaarden geselecteerde vragen
         library(ggplot2)
@@ -103,10 +128,9 @@ server <- function(input, output, session) {
                    max)
         
         itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
-            left_join(max_scores) %>% 
+            left_join(max_score_vraag()) %>% 
             mutate(p_waarde = mean/max,
-                   n = as.character(n),
-                   max = as.character(max))
+                   n = as.character(n))
         
         ## Selecreer gewenste kolommen en hernoem ze waar nodig
         itemanalyse <- select(itemanalyse,
@@ -178,4 +202,23 @@ server <- function(input, output, session) {
             write.csv2(itemanalyse, file, row.names = FALSE)
         }
     )
+    
+    output$download_max_score <- downloadHandler(
+        # The downloaded file krijgt de naam max_score.csv
+        filename = "max_score.csv",
+        content = function(file) {
+
+                        ## Selecteer de vragen op basis van de input gebruikers
+            scores <- select(scores(), input$itemnamen)
+            
+            max_scores <- scores %>% 
+                psych::describe() %>% tibble::rownames_to_column("Items") %>% 
+                select(Items,
+                       max)
+            
+            max_scores
+            
+            # Write the filtered data into a CSV file
+            write.csv2(max_scores, file, row.names = FALSE)
+        })
 }

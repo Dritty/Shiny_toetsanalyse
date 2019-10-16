@@ -21,15 +21,28 @@ ui <- fluidPage(
             selectInput("itemnamen", "Selecteer vragen voor analyse",
                         choices = NULL, multiple = TRUE),
             
-            ## Download nde itemanalyse
-            downloadButton(outputId = "download_data", label = "Download item analyse")
+            ## Download de itemanalyse
+            downloadButton(outputId = "download_data", label = "Download item analyse"),
+            
+            ## Download de maximale score per vraag (van de geselecteerde vragen)
+            downloadButton(outputId = "download_max_score", 
+                           label = "Download maximale score selectie"),
+            
+            ## Biedt mogelijkheid om maximale score per vraag te uploaden
+            fileInput("max_score_upload",
+                      "Upload de file met correcte maximale score",
+                      accept = c(
+                          "text/csv",
+                          "text/comma-separated-values,text/plain",
+                          ".csv")
+            )
 
         ),
         
         # Resultaten van geuploade scores met overall toetsgegevens
         mainPanel(h3("Toetsgegevens"),
                   tableOutput("betrouwbaarheid"),
-                      
+
                   ## Een plot van de studentscores
                   h4("Histogram van studentscores (blauw = gemiddelde score)"),
                   plotOutput("histogram", width = "600px", height = "400px",),
