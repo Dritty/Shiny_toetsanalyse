@@ -8,14 +8,14 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(
             fileInput("resultaten",
-                      "Upload de file met studentresultaten",
+                      "Upload de csv file met studentresultaten",
                       accept = c(
                           "text/csv",
                           "text/comma-separated-values,text/plain",
                           ".csv")
             ),
             ## Maak een knop om mogelijke vragen in selectieveld te activieren
-            actionButton("choice", "Toon beschikbare vragen"),
+            actionButton("choice", "Toon vragen uit upload"),
             
             ## Selecteer gewenste vragen voor analyse
             selectInput("itemnamen", "Selecteer vragen voor analyse",
@@ -23,7 +23,7 @@ ui <- fluidPage(
             
             ## Download de maximale score per vraag (van de geselecteerde vragen)
             downloadButton(outputId = "download_max_score", 
-                           label = "Download maximale score selectie"),
+                           label = "Download csv met maximale score per vraag"),
             
             ## Biedt mogelijkheid om maximale score per vraag te uploaden
             fileInput("max_score_upload",
@@ -45,7 +45,7 @@ ui <- fluidPage(
 
                   ## Een plot van de studentscores
                   h4("Histogram van studentscores (blauw = gemiddelde score)"),
-                  plotOutput("histogram", width = "600px", height = "400px",),
+                  plotOutput("histogram", width = "600px", height = "400px"),
                   
                   ## Een plot van de p en rir waarden van de geselecteerde vragen
                   h4("Plot van p en rir waarden"),
