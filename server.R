@@ -40,7 +40,7 @@ server <- function(input, output, session) {
         
     })
     
-    # Houdt bij of het faculteit filter verandert en past opleiding filter aan
+ ## Houdt bij of een score bestand is geupload en past dan vraagopties aan
     observeEvent(input$resultaten, {
        
         vars <- names(scores())
@@ -57,20 +57,7 @@ server <- function(input, output, session) {
         
         ## selecteer items op basis van inputselectie
         scores <- scores()
-        scores <- subset(scores, select = input$itemnamen2)
-        
-        itemanalyse_rapport <- psych::alpha(scores, cumulative=TRUE)$total
-        
-        itemanalyse_rapport$Aantal_vragen <- ncol(scores)
-        itemanalyse_rapport$Aantal_studenten <- nrow(scores)
-        
-        itemanalyse_rapport <- select(itemanalyse_rapport,
-                                     'Cronbachs alpha' = raw_alpha,
-                                     'Gemiddelde score' = mean,
-                                     'Aantal vragen' = Aantal_vragen,
-                                     'Aantal studenten' = Aantal_studenten)
-        
-        itemanalyse_rapport
+        betrouwbaarheid(scores, input$itemnamen2)
     })
     
     ## Maak een plot van rir en P waarden op basis van geupload bestand en 
@@ -87,14 +74,9 @@ server <- function(input, output, session) {
                 left_join(max_score_vraag()) %>% 
                 mutate(p_waarde = mean/max,
                        n = round(n))
-        
-        ## Maak een plotje van p en rirwaarden geselecteerde vragen
-        p <- ggplot(itemanalyse, aes(r.drop, p_waarde)) +
-            geom_point(alpha=0.5) + 
-            labs(x = "Rir waarde", y = "P waarde") + 
-            geom_text_repel(aes(r.drop, p_waarde, label = Items)) + ylim(0,1) +
-            theme_classic(base_size = 16)
-        p
+            
+            
+            rir_plot(itemanalyse)
         
     })
     
@@ -123,8 +105,7 @@ server <- function(input, output, session) {
     })
     
     
-    ## Maak een histogram van de studentscores
-    
+## Maak een histogram van de studentscores
     ## Selecteer de vragen op basis van de input gebruikers
     output$histogram <- renderPlot({ 
         
@@ -137,12 +118,8 @@ server <- function(input, output, session) {
         totaalscores <- mutate(totaalscores, maximalescore = max(totaalscores),
                    gemiddeldescore = mean(totaalscores))
         
-        ggplot2::ggplot(totaalscores, aes(totaalscores))+
-            geom_histogram()+xlim(0, as.numeric(totaalscores$maximalescore[1])) +
-            geom_vline(xintercept = totaalscores$gemiddeldescore[1], color="blue", size = 2)+
-            theme_classic(base_size = 16) +
-            labs(x = "Totaalscore op toets", y = "Frequentie")
-    
+        score_histogram(totaalscores)
+        
     })
     
     # Create a download handler
