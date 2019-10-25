@@ -1,8 +1,3 @@
-
-## Laad benodigde packages
-library(shiny)
-library(tidyverse)
-
 # Define server logic 
 server <- function(input, output, session) {
     
@@ -18,30 +13,41 @@ server <- function(input, output, session) {
     
     })
     
+    
     ## Maak een reactive maximale score bestand op basis van de upload
     max_score_vraag <- reactive({inFile_max <- input$max_score_upload
     
-    if (is.null(inFile_max))
-        return(NULL)
-    
-    max_score_vraag <- data.table::fread(inFile_max$datapath)
-    
-    max_score_vraag
-    
+    if (is.null(inFile_max)) {
+        
+        ## Selecteer de vragen op basis van de input gebruikers
+        scores <- select(scores(), input$itemnamen2)
+        
+        max_scores <- scores %>% 
+            psych::describe() %>% tibble::rownames_to_column("Items") %>% 
+            select(Items,
+                   max)
+        
+        max_scores
+        
+    }
+        
+    else {
+        
+        max_scores <- data.table::fread(inFile_max$datapath)
+        
+        max_scores
+    }
+        
     })
     
-    
-    ## vraagnamen van geuploade vragen tonen als bestand is geupload
-    info <- eventReactive(input$choice, {
-        inFile <- input$resultaten
-        req(inFile)
+    # Houdt bij of het faculteit filter verandert en past opleiding filter aan
+    observeEvent(input$resultaten, {
+       
+        vars <- names(scores())
         
-        scores <- data.table::fread(inFile$datapath)
-        vars <- names(scores)
-        # Update select input immediately after clicking on the action button. 
-        updateSelectInput(session, "itemnamen","Selecteer vragen voor analyse", choices = vars)
-        
-        scores
+        # Update de dropdown gedefinieerd in de UI
+        updatePickerInput(session, "itemnamen2",
+                          choices = vars, selected = vars)
     })
     
 
@@ -50,8 +56,8 @@ server <- function(input, output, session) {
     output$betrouwbaarheid <- renderTable({
         
         ## selecteer items op basis van inputselectie
-        scores <- info()
-        scores <- subset(scores, select = input$itemnamen)
+        scores <- scores()
+        scores <- subset(scores, select = input$itemnamen2)
         
         itemanalyse_rapport <- psych::alpha(scores, cumulative=TRUE)$total
         
@@ -72,7 +78,7 @@ server <- function(input, output, session) {
     output$rpPlot <- renderPlot({
         
         ## Selecteer de vragen op basis van de input gebruikers
-        scores <- select(scores(), input$itemnamen)
+        scores <- select(scores(), input$itemnamen2)
         
         ## Maak een itemanalyse-rapport
         itemanalyse <- psych::alpha(scores)$item.stats
@@ -83,8 +89,6 @@ server <- function(input, output, session) {
                        n = round(n))
         
         ## Maak een plotje van p en rirwaarden geselecteerde vragen
-        library(ggplot2)
-        library(ggrepel)
         p <- ggplot(itemanalyse, aes(r.drop, p_waarde)) +
             geom_point(alpha=0.5) + 
             labs(x = "Rir waarde", y = "P waarde") + 
@@ -98,7 +102,7 @@ server <- function(input, output, session) {
     output$itemanalyse_table <- renderTable({
         
         ## Selecteer de vragen op basis van de input gebruikers
-        scores <- select(scores(), input$itemnamen)
+        scores <- select(scores(), input$itemnamen2)
         
         itemanalyse <- psych::alpha(scores)$item.stats
 
@@ -124,7 +128,7 @@ server <- function(input, output, session) {
     ## Selecteer de vragen op basis van de input gebruikers
     output$histogram <- renderPlot({ 
         
-        scores <- select(scores(), input$itemnamen)
+        scores <- select(scores(), input$itemnamen2)
     
         itemanalyse <- psych::alpha(scores, cumulative=TRUE)
         totaalscores <- tibble::enframe(itemanalyse$scores, name = NULL, 
@@ -148,7 +152,7 @@ server <- function(input, output, session) {
         content = function(file) {
         
             ## Selecteer de vragen op basis van de input gebruikers
-            scores <- select(scores(), input$itemnamen)
+            scores <- select(scores(), input$itemnamen2)
             
             itemanalyse <- psych::alpha(scores)$item.stats
             
@@ -176,8 +180,8 @@ server <- function(input, output, session) {
         filename = "max_score.csv",
         content = function(file) {
 
-                        ## Selecteer de vragen op basis van de input gebruikers
-            scores <- select(scores(), input$itemnamen)
+           ## Selecteer de vragen op basis van de input gebruikers
+            scores <- select(scores(), input$itemnamen2)
             
             max_scores <- scores %>% 
                 psych::describe() %>% tibble::rownames_to_column("Items") %>% 

@@ -14,11 +14,8 @@ ui <- fluidPage(
                           "text/comma-separated-values,text/plain",
                           ".csv")
             ),
-            ## Maak een knop om mogelijke vragen in selectieveld te activieren
-            actionButton("choice", "Toon vragen uit upload"),
-            
-            ## Selecteer gewenste vragen voor analyse
-            selectInput("itemnamen", "Selecteer vragen voor analyse",
+
+            pickerInput("itemnamen2", "Selecteer gewenste vragen voor analyse",
                         choices = NULL, multiple = TRUE),
             
             ## Download de maximale score per vraag (van de geselecteerde vragen)
