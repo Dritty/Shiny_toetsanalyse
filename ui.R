@@ -1,56 +1,50 @@
-# Define UI 
-ui <- fluidPage(
-    
-    # Application title
-    titlePanel("Toetsanalyse eigen upload"),
-    
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            fileInput("resultaten",
-                      "Upload de csv file met studentresultaten",
-                      accept = c(
-                          "text/csv",
-                          "text/comma-separated-values,text/plain",
-                          ".csv")
-            ),
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## UI ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Shiny App voor Toetsanalyse met eigen upload
+##
+## Auteur; DD
+##
+## Doel: UI toetsanalyse
+##
+## Afhankelijkheden: Geen
+##
+## Datasets: Geen
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-            pickerInput("itemnamen2", "Selecteer gewenste vragen voor analyse",
-                        choices = NULL, multiple = TRUE),
-            
-            ## Download de maximale score per vraag (van de geselecteerde vragen)
-            downloadButton(outputId = "download_max_score", 
-                           label = "Download csv met maximale score per vraag"),
-            
-            ## Biedt mogelijkheid om maximale score per vraag te uploaden
-            fileInput("max_score_upload",
-                      "Upload de file met correcte maximale score",
-                      accept = c(
-                          "text/csv",
-                          "text/comma-separated-values,text/plain",
-                          ".csv")
-            ),
-            
-            ## Download de itemanalyse
-            downloadButton(outputId = "download_data", label = "Download item analyse")
+# Het dashboard moet een header hebben
+header <- dashboardHeader(
+    title = "Toetsanalyse"
+   
+)
 
-        ),
-        
-        # Resultaten van geuploade scores met overall toetsgegevens
-        mainPanel(h3("Toetsgegevens"),
-                  tableOutput("betrouwbaarheid"),
-
-                  ## Een plot van de studentscores
-                  h4("Histogram van studentscores (blauw = gemiddelde score)"),
-                  plotOutput("histogram", width = "600px", height = "400px"),
-                  
-                  ## Een plot van de p en rir waarden van de geselecteerde vragen
-                  h4("Plot van p en rir waarden"),
-                  plotOutput("rpPlot", width = "600px", height = "400px",),
-                  
-                  ## een tabel/overzicht van de itemanalyse van alle aanwezige vragen
-                  h4("Item analyse:"),
-                  tableOutput("itemanalyse_table")
-        )
+# Definieer de tabs in het dashboardbody.
+# De inhoud van de tabs is in ui_components/* gedefinieerd voor leesbaarheid
+body <- dashboardBody(
+    # Dit laad de CSS uit www/custom.css in
+    tags$head(tags$link(rel = "stylesheet",
+                        type = "text/css", href = "custom.css")),
+    tags$head(tags$script(src="example.js")),
+    tabItems(
+        ui_component_tab_main,
+        ui_component_tab_twee,
+        ui_component_tab_drie,
+        ui_component_tab_vier
     )
+)
+
+# Shiny gaat op zoek naar dit, de UI component
+# De dashboardpage moet een header, dashboardSidebar en dasboardBody hebben
+ui <- dashboardPage(
+    header,
+    dashboardSidebar(
+        # Link tabNames met ids aan de tabs in ui_components/*
+        sidebarMenu(
+            menuItem("Input", tabName = "tab_main"),
+            menuItem("Analyse", tabName = "tab_output"),
+            menuItem("Download", tabName = "tab_download"),
+            menuItem("Voorbeeld score data", tabName = "tab_voorbeeld")
+        )
+    ),
+    body
 )

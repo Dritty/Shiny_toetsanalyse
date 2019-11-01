@@ -170,4 +170,23 @@ server <- function(input, output, session) {
             # Write the filtered data into a CSV file
             write.csv2(max_scores, file, row.names = FALSE)
         })
+    
+    # Create a download handler van voorbeelddata
+    output$download_voorbeeld <- downloadHandler(
+        # The downloaded file krijgt de naam itemanalyse.csv
+        filename = "test_scores.csv",
+        content = function(file) {
+
+            voorbeelddata
+
+            # Write the filtered data into a CSV file
+            write.csv2(voorbeelddata, file, row.names = FALSE)
+        }
+    )
+    
+    # Genereer een tekst element voor de tweede tab
+    output$Uitleg_max <- renderText({
+        "Indien de maximale score per vraag gecorrigeerd moet worden, 
+        download dan de data en upload het gecorrigeerde bestand"
+    })
 }
