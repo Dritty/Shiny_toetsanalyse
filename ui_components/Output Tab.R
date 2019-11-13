@@ -24,14 +24,14 @@ ui_component_tab_twee <- tabItem(
     column(
       width = 10,
       box(h4("Histogram van studentscores (blauw = gemiddelde score)"),
-          plotOutput("histogram", width = "600px", height = "400px"))
+          plotOutput("histogram"))
     )
   ),
   fluidRow(
     column(
       width = 10,
       box(h4("Plot van p en rir waarden"),
-          plotOutput("rpPlot", width = "600px", height = "400px"))
+          plotOutput("rpPlot"))
     )
   ),
   fluidRow(

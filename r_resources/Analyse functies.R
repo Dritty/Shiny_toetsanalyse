@@ -1,8 +1,6 @@
 ## Bereken betrouwbaarheid
 
-betrouwbaarheid <- function(df, vragen){
-    
-    df <- subset(df, select = vragen)
+betrouwbaarheid <- function(df, max_score){
     
     itemanalyse_rapport <- psych::alpha(df, cumulative=TRUE)$total
     
@@ -15,5 +13,37 @@ betrouwbaarheid <- function(df, vragen){
                                   'Aantal vragen' = Aantal_vragen,
                                   'Aantal studenten' = Aantal_studenten)
     
+    ## Maak een itemanalyse-rapport om gemiddelde p-waarde toe te voegen
+    itemanalyse <- psych::alpha(df)$item.stats
+    
+    itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
+        left_join(max_score) %>% 
+        mutate(p_waarde = mean/max,
+               n = round(n))
+    
+    itemanalyse_rapport$p_waarde <- mean(itemanalyse$p_waarde)
+    
+    itemanalyse_rapport <- itemanalyse_rapport %>% 
+        rename(`Gemiddelde p waarde` = p_waarde)
+    
     itemanalyse_rapport
+}
+
+itemanalyse <- function(df, max_score){
+    
+    itemanalyse <- psych::alpha(df)$item.stats
+    
+    itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
+        left_join(max_score) %>% 
+        mutate(p_waarde = mean/max,
+               n = as.character(n))
+    
+    ## Selecreer gewenste kolommen en hernoem ze waar nodig
+    itemanalyse <- select(itemanalyse,
+                          Items,
+                          n,
+                          P = p_waarde,
+                          rir = r.drop,
+                          max)
+    itemanalyse
 }

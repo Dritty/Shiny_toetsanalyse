@@ -55,9 +55,11 @@ server <- function(input, output, session) {
     ## items
     output$betrouwbaarheid <- renderTable({
         
-        ## selecteer items op basis van inputselectie
-        scores <- scores()
-        betrouwbaarheid(scores, input$itemnamen2)
+        ## Selecteer de vragen op basis van de input gebruikers
+        scores <- select(scores(), input$itemnamen2)
+        betrouwbaarheid <- betrouwbaarheid(scores, max_score_vraag())
+        
+        
     })
     
     ## Maak een plot van rir en P waarden op basis van geupload bestand en 
@@ -67,16 +69,7 @@ server <- function(input, output, session) {
         ## Selecteer de vragen op basis van de input gebruikers
         scores <- select(scores(), input$itemnamen2)
         
-        ## Maak een itemanalyse-rapport
-        itemanalyse <- psych::alpha(scores)$item.stats
-
-            itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
-                left_join(max_score_vraag()) %>% 
-                mutate(p_waarde = mean/max,
-                       n = round(n))
-            
-            
-            rir_plot(itemanalyse)
+        rir_plot(scores, max_score_vraag())
         
     })
     
@@ -86,21 +79,7 @@ server <- function(input, output, session) {
         ## Selecteer de vragen op basis van de input gebruikers
         scores <- select(scores(), input$itemnamen2)
         
-        itemanalyse <- psych::alpha(scores)$item.stats
-
-        itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
-            left_join(max_score_vraag()) %>% 
-            mutate(p_waarde = mean/max,
-                   n = as.character(n))
-        
-        ## Selecreer gewenste kolommen en hernoem ze waar nodig
-        itemanalyse <- select(itemanalyse,
-                              Items,
-                              n,
-                              P = p_waarde,
-                              rir = r.drop,
-                              max)
-        itemanalyse
+        itemanalyse(scores, max_score_vraag())
         
     })
     
@@ -111,14 +90,7 @@ server <- function(input, output, session) {
         
         scores <- select(scores(), input$itemnamen2)
     
-        itemanalyse <- psych::alpha(scores, cumulative=TRUE)
-        totaalscores <- tibble::enframe(itemanalyse$scores, name = NULL, 
-                                        value = "totaalscores")
-        
-        totaalscores <- mutate(totaalscores, maximalescore = max(totaalscores),
-                   gemiddeldescore = mean(totaalscores))
-        
-        score_histogram(totaalscores)
+        score_histogram(scores)
         
     })
     
@@ -131,21 +103,7 @@ server <- function(input, output, session) {
             ## Selecteer de vragen op basis van de input gebruikers
             scores <- select(scores(), input$itemnamen2)
             
-            itemanalyse <- psych::alpha(scores)$item.stats
-            
-            itemanalyse <- itemanalyse %>% tibble::rownames_to_column("Items") %>% 
-                left_join(max_score_vraag()) %>% 
-                mutate(p_waarde = mean/max,
-                       n = as.character(n))
-            
-            ## Selecreer gewenste kolommen en hernoem ze waar nodig
-            itemanalyse <- select(itemanalyse,
-                                  Items,
-                                  n,
-                                  P = p_waarde,
-                                  rir = r.drop,
-                                  max)
-            itemanalyse
+            itemanalyse <- itemanalyse(scores, max_score_vraag())
             
             # Write the filtered data into a CSV file
             write.csv2(itemanalyse, file, row.names = FALSE)
