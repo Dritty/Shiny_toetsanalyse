@@ -23,6 +23,9 @@ ui_component_tab_main <- tabItem(
                       "text/comma-separated-values,text/plain",
                       ".csv")
       )),
+      box(pickerInput("studentnamen",
+                    "Welke kolom bevat de studentnamen?",
+                    choices = NULL, multiple = FALSE)),
       box(
         pickerInput("itemnamen2", 
                     "Selecteer gewenste vragen/kolommen voor analyse",

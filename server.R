@@ -45,9 +45,15 @@ server <- function(input, output, session) {
        
         vars <- names(scores())
         
+        vars2 <- c(vars, "nvt")
+        
         # Update de dropdown gedefinieerd in de UI
         updatePickerInput(session, "itemnamen2",
                           choices = vars, selected = vars)
+        
+        # Update de dropdown gedefinieerd in de UI
+        updatePickerInput(session, "studentnamen",
+                          choices = vars2)
     })
     
 
@@ -60,7 +66,7 @@ server <- function(input, output, session) {
         betrouwbaarheid <- betrouwbaarheid(scores, max_score_vraag())
         
         
-    })
+    }, striped = TRUE)
     
     ## Maak een plot van rir en P waarden op basis van geupload bestand en 
     ## geselecteerde items
@@ -82,6 +88,47 @@ server <- function(input, output, session) {
         itemanalyse(scores, max_score_vraag())
         
     })
+    
+    # Create a download handler met de totaalscores per student
+    output$download_totaalscores <- downloadHandler(
+        # The downloaded file krijgt de naam itemanalyse.csv
+        filename = "totaalscores.csv",
+        content = function(file) {
+            
+            ## Selecteer de vragen op basis van de input gebruikers
+            scores1 <- select(scores(), input$itemnamen2)
+            
+            ## Selecteer de kolom met id's
+            if (input$studentnamen == "nvt")
+            {
+                ID <- "nvt"
+            }
+            
+            else{ID <- select(scores(), input$studentnamen)}
+            
+            totaalscores <- totaalscores(scores1, ID)
+            
+            # Write the filtered data into a CSV file
+            write.csv2(totaalscores, file, row.names = FALSE)
+        }
+    )
+   
+    # ## Maak een bestand met de totaalscores per student
+    # output$totaalscore <- renderTable({
+    #     
+    #     ## Selecteer de vragen op basis van de input gebruikers
+    #     scores1 <- select(scores(), input$itemnamen2)
+    #     
+    #     ## Selecteer de kolom met id's
+    #     if (input$studentnamen == "nvt")
+    #     {
+    #         ID <- "nvt"
+    #     }
+    #     
+    #     else{ID <- select(scores(), input$studentnamen)}
+    #     
+    #     totaalscores(scores1, ID)
+    # })
     
     
 ## Maak een histogram van de studentscores
