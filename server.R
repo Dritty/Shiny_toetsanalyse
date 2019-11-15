@@ -101,15 +101,16 @@ server <- function(input, output, session) {
             ## Selecteer de kolom met id's
             if (input$studentnamen == "nvt")
             {
-                ID <- "nvt"
+                ID <- scores1 %>% 
+                    mutate(nvt = NA)
             }
             
             else{ID <- select(scores(), input$studentnamen)}
             
-            totaalscores <- totaalscores(scores1, ID)
+            totaalscore <- totaalscores(scores1, ID)
             
             # Write the filtered data into a CSV file
-            write.csv2(totaalscores, file, row.names = FALSE)
+            write.csv2(totaalscore, file, row.names = FALSE)
         }
     )
    

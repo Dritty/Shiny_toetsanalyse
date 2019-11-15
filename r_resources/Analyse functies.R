@@ -21,9 +21,11 @@ betrouwbaarheid <- function(df, max_score){
         mutate(Aantal_vragen = as.character(Aantal_vragen),
                Aantal_studenten = as.character(Aantal_studenten),
                mean = round(mean, digits = 2),
-               raw_alpha = round(raw_alpha, digits = 2)) %>% 
+               raw_alpha = round(raw_alpha, digits = 2),
+               sd = round(sd, digits = 2)) %>% 
         select('Cronbach\'s Alpha' = raw_alpha,
                'Gemiddelde score' = mean,
+               'Standaarddeviatie' = sd,
                'Gemiddelde p waarde' = p_waarde,
                'Aantal vragen' = Aantal_vragen,
                'Aantal studenten' = Aantal_studenten)
@@ -59,7 +61,7 @@ itemanalyse <- function(df, max_score){
 
 totaalscores <- function(df, ID){
     
-    if (ID == "nvt"){
+    if ("nvt" %in% names(ID)){
         totaalscore <- df %>% 
             mutate(Totaalscore = rowSums(.))
     }
