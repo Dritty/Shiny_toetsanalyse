@@ -40,6 +40,19 @@ ui_component_tab_twee <- tabItem(
       box(h4("Item analyse:"),
           tableOutput("itemanalyse_table"))
     )
+  ),
+  fluidRow(
+    column(
+      width = 10,
+      box(h4("ICC:"),
+          p("Onderstaande plot toont de Item characteristic curve van de geselecteerde vraag. 
+            Deze curve is een weergave van de relatie tussen de gemiddelde totaalscore van een 
+            groep studenten en de score op de vraag"),
+          pickerInput("ICC_input",
+                          "Kies de gewenste vraag",
+                          choices = NULL, multiple = FALSE),
+          plotOutput("ICC"))
+    )
   )
 )
 

@@ -23,7 +23,7 @@ betrouwbaarheid <- function(df, max_score){
                mean = round(mean, digits = 2),
                raw_alpha = round(raw_alpha, digits = 2),
                sd = round(sd, digits = 2)) %>% 
-        select('Cronbach\'s Alpha' = raw_alpha,
+        dplyr:: select('Cronbach\'s Alpha' = raw_alpha,
                'Gemiddelde score' = mean,
                'Standaarddeviatie' = sd,
                'Gemiddelde p waarde' = p_waarde,
@@ -32,7 +32,7 @@ betrouwbaarheid <- function(df, max_score){
     
     itemanalyse_rapport <- as.data.frame(t(itemanalyse_rapport)) %>% 
         tibble::rownames_to_column() %>% 
-        select("Toetswaarden" = rowname,
+        dplyr:: select("Toetswaarden" = rowname,
                " " = V1)
     
     itemanalyse_rapport
@@ -50,7 +50,7 @@ itemanalyse <- function(df, max_score){
                n = as.character(n))
     
     ## Selecreer gewenste kolommen en hernoem ze waar nodig
-    itemanalyse <- select(itemanalyse,
+    itemanalyse <- dplyr:: select(itemanalyse,
                           Items,
                           n,
                           P = p_waarde,

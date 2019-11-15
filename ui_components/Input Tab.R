@@ -23,10 +23,14 @@ ui_component_tab_main <- tabItem(
                       "text/comma-separated-values,text/plain",
                       ".csv")
       )),
-      box(pickerInput("studentnamen",
+      box(p("Als het bestand met de scores per vraag ook een kolom met studentnamen of studentnummers bevat
+            , kan deze kolom hier geselecteerd worden."),
+        pickerInput("studentnamen",
                     "Welke kolom bevat de studentnamen?",
                     choices = NULL, multiple = FALSE)),
       box(
+        p("Deselecteer kolommen die geen scores bevatten, of vragen die verwijderd moeten worden
+          uit de analyse"),
         pickerInput("itemnamen2", 
                     "Selecteer gewenste vragen/kolommen voor analyse",
                     choices = NULL, multiple = TRUE)

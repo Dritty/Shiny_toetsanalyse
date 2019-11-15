@@ -20,11 +20,11 @@ server <- function(input, output, session) {
     if (is.null(inFile_max)) {
         
         ## Selecteer de vragen op basis van de input gebruikers
-        scores <- select(scores(), input$itemnamen2)
+        scores <- dplyr:: select(scores(), input$itemnamen2)
         
         max_scores <- scores %>% 
             psych::describe() %>% tibble::rownames_to_column("Items") %>% 
-            select(Items,
+            dplyr:: select(Items,
                    max)
         
         max_scores
@@ -54,6 +54,10 @@ server <- function(input, output, session) {
         # Update de dropdown gedefinieerd in de UI
         updatePickerInput(session, "studentnamen",
                           choices = vars2)
+        
+        # Update de dropdown gedefinieerd in de UI
+        updatePickerInput(session, "ICC_input",
+                          choices = vars)
     })
     
 
@@ -62,7 +66,7 @@ server <- function(input, output, session) {
     output$betrouwbaarheid <- renderTable({
         
         ## Selecteer de vragen op basis van de input gebruikers
-        scores <- select(scores(), input$itemnamen2)
+        scores <- dplyr:: select(scores(), input$itemnamen2)
         betrouwbaarheid <- betrouwbaarheid(scores, max_score_vraag())
         
         
@@ -73,7 +77,7 @@ server <- function(input, output, session) {
     output$rpPlot <- renderPlot({
         
         ## Selecteer de vragen op basis van de input gebruikers
-        scores <- select(scores(), input$itemnamen2)
+        scores <- dplyr:: select(scores(), input$itemnamen2)
         
         rir_plot(scores, max_score_vraag())
         
@@ -83,7 +87,7 @@ server <- function(input, output, session) {
     output$itemanalyse_table <- renderTable({
         
         ## Selecteer de vragen op basis van de input gebruikers
-        scores <- select(scores(), input$itemnamen2)
+        scores <- dplyr:: select(scores(), input$itemnamen2)
         
         itemanalyse(scores, max_score_vraag())
         
@@ -96,7 +100,7 @@ server <- function(input, output, session) {
         content = function(file) {
             
             ## Selecteer de vragen op basis van de input gebruikers
-            scores1 <- select(scores(), input$itemnamen2)
+            scores1 <- dplyr:: select(scores(), input$itemnamen2)
             
             ## Selecteer de kolom met id's
             if (input$studentnamen == "nvt")
@@ -105,7 +109,7 @@ server <- function(input, output, session) {
                     mutate(nvt = NA)
             }
             
-            else{ID <- select(scores(), input$studentnamen)}
+            else{ID <- dplyr:: select(scores(), input$studentnamen)}
             
             totaalscore <- totaalscores(scores1, ID)
             
@@ -115,28 +119,33 @@ server <- function(input, output, session) {
     )
    
     # ## Maak een bestand met de totaalscores per student
-    # output$totaalscore <- renderTable({
-    #     
-    #     ## Selecteer de vragen op basis van de input gebruikers
-    #     scores1 <- select(scores(), input$itemnamen2)
-    #     
-    #     ## Selecteer de kolom met id's
-    #     if (input$studentnamen == "nvt")
-    #     {
-    #         ID <- "nvt"
-    #     }
-    #     
-    #     else{ID <- select(scores(), input$studentnamen)}
-    #     
-    #     totaalscores(scores1, ID)
-    # })
+    output$ICC <- renderPlot({
+    ## Selecteer de vragen op basis van de input gebruikers
+    scores1 <- dplyr:: select(scores(), input$itemnamen2)
     
+    ## Selecteer de kolom met id's
+    if (input$studentnamen == "nvt")
+    {
+        ID <- scores1 %>% 
+            mutate(nvt = NA)
+    }
+    
+    else{ID <- dplyr:: select(scores(), input$studentnamen)}
+    
+    totaalscore <- totaalscores(scores1, ID)$Totaalscore
+    
+    scores_ICC <- dplyr:: select(scores(), input$ICC_input)
+    
+    CTT:: cttICC(totaalscore, scores_ICC,
+                 colTheme="spartans", cex=1.5, ylab=names(scores_ICC))
+
+    })
     
 ## Maak een histogram van de studentscores
     ## Selecteer de vragen op basis van de input gebruikers
     output$histogram <- renderPlot({ 
         
-        scores <- select(scores(), input$itemnamen2)
+        scores <- dplyr:: select(scores(), input$itemnamen2)
     
         score_histogram(scores)
         
@@ -149,7 +158,7 @@ server <- function(input, output, session) {
         content = function(file) {
         
             ## Selecteer de vragen op basis van de input gebruikers
-            scores <- select(scores(), input$itemnamen2)
+            scores <- dplyr:: select(scores(), input$itemnamen2)
             
             itemanalyse <- itemanalyse(scores, max_score_vraag())
             
@@ -164,11 +173,11 @@ server <- function(input, output, session) {
         content = function(file) {
 
            ## Selecteer de vragen op basis van de input gebruikers
-            scores <- select(scores(), input$itemnamen2)
+            scores <- dplyr:: select(scores(), input$itemnamen2)
             
             max_scores <- scores %>% 
                 psych::describe() %>% tibble::rownames_to_column("Items") %>% 
-                select(Items,
+                dplyr:: select(Items,
                        max)
             
             max_scores
