@@ -20,12 +20,14 @@ betrouwbaarheid <- function(df, max_score){
     itemanalyse_rapport <- itemanalyse_rapport %>% 
         mutate(Aantal_vragen = as.character(Aantal_vragen),
                Aantal_studenten = as.character(Aantal_studenten),
+               Standaardmeetfout = round(sd*sqrt(1-raw_alpha), digits = 2),
                mean = round(mean, digits = 2),
                raw_alpha = round(raw_alpha, digits = 2),
                sd = round(sd, digits = 2)) %>% 
         dplyr:: select('Cronbach\'s Alpha' = raw_alpha,
                'Gemiddelde score' = mean,
                'Standaarddeviatie' = sd,
+               Standaardmeetfout,
                'Gemiddelde p waarde' = p_waarde,
                'Aantal vragen' = Aantal_vragen,
                'Aantal studenten' = Aantal_studenten)
